@@ -101,7 +101,8 @@ def ReturnData(stock_data, start, end):
 
 
 def main():
-    start = datetime(2014,3,1)
+    end = datetime.today()
+    start = end.replace(year=end.year-5)
     end = datetime.today()
     top_healthcare = import_collections("Healthcare")
     names = list(top_healthcare["Ticker"])
