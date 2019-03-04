@@ -8,10 +8,11 @@ import pandas as pd
 from datetime import datetime
 from iexfinance.stocks import (Stock, get_historical_data, get_historical_intraday, 
                                get_ipo_calendar, get_collections)
-import matplotlib.pyplot as plt
-import numpy
+#import matplotlib.pyplot as plt
 import math
 import quandl
+import matplotlib
+import matplotlib.pyplot as plt
 
 def import_data(stock, start, end):
     '''Imports daily stock data using iexfinance.stocks API, 
@@ -105,7 +106,20 @@ def ReturnData(stock_data, start, end):
         print(Error)
         return 0
 
+def get_price(stock_data):
+    price = []
+    for i in range(len(stock_data[1])):
+        price.append(stock_data[1][i]["close"].iloc[-1])
+    return price
 
+def create_plot(data, ticker, loc):
+    plt.plot(data[0][ticker], data[0]["SPY"])
+    plt.xlabel("Date")
+    plt.ylabel("% Daily return")
+    plt.savefig(loc)
+    #https://matplotlib.org/tutorials/introductory/pyplot.html
+    
+    
 def main():
     end = datetime.today()
     start = end.replace(year=end.year-5) #Takes data from 5 years ago
@@ -120,15 +134,13 @@ def main():
     #stock_rolling = stocks.rolling(window=20).mean()
     stocks_corr = stocks[0].corr()
     stock_returns = ReturnData(stocks[0], start, end)
+    price = get_price(stocks)
+    stock_returns["Price"] = price
     print("The correlation, yearly mean return and plot of {0} is given below:".format(names))
     print("\nCorrelation\n")
     print(stocks_corr)
     print(stock_returns)
-    
-    
-    
-
-    
+    create_plot(stocks, "JNJ", "Figure.png")
     
     ##https://iexcloud.io/pricing/
     
