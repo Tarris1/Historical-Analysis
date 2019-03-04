@@ -41,10 +41,10 @@ def import_multiple(data_to_return, names, start, end):
     
     '''
     stock_and_returns = []
-    stock_list = []
+    stock_list = {}
     for i in range(len(names)):
         df = import_data(names[i], start, end)
-        stock_list.append(df)
+        stock_list[names[i]] = df
         if i == 0:
             stocks = pd.DataFrame({names[i]:df[data_to_return]})
         else:
@@ -106,17 +106,18 @@ def ReturnData(stock_data, start, end):
         print(Error)
         return 0
 
-def get_price(stock_data):
+def get_price(stock_data, names):
     price = []
     for i in range(len(stock_data[1])):
-        price.append(stock_data[1][i]["close"].iloc[-1])
+        price.append(stock_data[1][names[i]]["close"].iloc[-1])
     return price
 
 def create_plot(data, ticker, loc):
-    plt.plot(data[0][ticker], data[0]["SPY"])
+    plt.plot(data[1][ticker]["volume"], 'b--', data[1]["GSK"]["volume"], 'r--')
+    plt.title("Trading volume of {0} (blue) vs GSK (red)".format(ticker))
     plt.xlabel("Date")
-    plt.ylabel("% Daily return")
-    plt.savefig(loc)
+    plt.ylabel("% Daily Volume")
+    plt.savefig(loc, dpi='figure')
     #https://matplotlib.org/tutorials/introductory/pyplot.html
     
     
@@ -134,14 +135,14 @@ def main():
     #stock_rolling = stocks.rolling(window=20).mean()
     stocks_corr = stocks[0].corr()
     stock_returns = ReturnData(stocks[0], start, end)
-    price = get_price(stocks)
+    price = get_price(stocks, names)
     stock_returns["Price"] = price
     print("The correlation, yearly mean return and plot of {0} is given below:".format(names))
     print("\nCorrelation\n")
     print(stocks_corr)
     print(stock_returns)
-    create_plot(stocks, "JNJ", "Figure.png")
-    
+    #create_plot(stocks, "JNJ", "Figure.png")
+    #print(stocks[1]["JNJ"])
     ##https://iexcloud.io/pricing/
     
     
