@@ -31,20 +31,26 @@ def import_data(stock, start, end):
     return df
 
 def import_multiple(data_to_return, names, start, end):
-    '''Returns daily returns of all tickers in names
+    '''Returns daily returns of all tickers in names 
+    in stock_and_returns[0]. All stock data for each stock in[1]
     
     @Params. data_to_return: what type of data you want, options: close, open
     , Returns, ++.
             names: list of ticker symbols.
     
     '''
+    stock_and_returns = []
+    stock_list = []
     for i in range(len(names)):
         df = import_data(names[i], start, end)
+        stock_list.append(df)
         if i == 0:
             stocks = pd.DataFrame({names[i]:df[data_to_return]})
         else:
             stocks[names[i]] = df[data_to_return]
-    return stocks   
+    stock_and_returns.append(stocks)
+    stock_and_returns.append(stock_list)
+    return stock_and_returns
  
 
 def import_IPO():
@@ -102,8 +108,7 @@ def ReturnData(stock_data, start, end):
 
 def main():
     end = datetime.today()
-    start = end.replace(year=end.year-5)
-    end = datetime.today()
+    start = end.replace(year=end.year-5) #Takes data from 5 years ago
     top_healthcare = import_collections("Healthcare")
     names = list(top_healthcare["Ticker"])
     names.append("SPY")
@@ -113,12 +118,13 @@ def main():
     #SPY_trailing.plot()
     stocks = import_multiple("Returns", names, start, end) #Returns a dataframe with daily returns
     #stock_rolling = stocks.rolling(window=20).mean()
-    stocks_corr = stocks.corr()
-    stock_returns = ReturnData(stocks, start, end)
+    stocks_corr = stocks[0].corr()
+    stock_returns = ReturnData(stocks[0], start, end)
     print("The correlation, yearly mean return and plot of {0} is given below:".format(names))
     print("\nCorrelation\n")
     print(stocks_corr)
     print(stock_returns)
+    
     
     
 
