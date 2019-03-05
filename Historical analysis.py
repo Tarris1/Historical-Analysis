@@ -114,24 +114,30 @@ def get_price(stock_data, names):
     return price
 
 def create_plot(data, ticker, loc):
+    '''Plots 3 figures: daily returns, daily prices and daily trading volumes
+    
+    @Params. Data = Dataframe of iexfinance.stocks object.
+            Ticker = Stock to compare with S&P500
+            loc = name of plot
+            
+    '''
+            
     comp = "SPY"
     fig, (p1, p2, p3) = plt.subplots(3, sharex = True)
     p1.plot(data[1][ticker]["Returns"], 'b', data[1][comp]["Returns"], 'r')
     p1.set(ylabel = "Returns")
-    scaling_a = data[1][ticker]["close"][-1]
-    scaling_b = data[1][comp]["close"][-1]
+    scaling_a = data[1][ticker]["close"][-0]
+    scaling_b = data[1][comp]["close"][0]
     p2.plot((data[1][ticker]["close"]/scaling_a)*100, 
              'b', (data[1][comp]["close"]/scaling_b)*100, 'r')
     p2.set(ylabel="Prices")
     p2.legend((ticker, comp))
     p2.grid(True)
-    vol_scale_a = data[1][ticker]["volume"][-1]
-    vol_scale_b = data[1][comp]["volume"][-1]
+    vol_scale_a = data[1][ticker]["volume"][0]
+    vol_scale_b = data[1][comp]["volume"][0]
     p3.plot((data[1][ticker]["volume"]/vol_scale_a)*100,'b',
              (data[1][comp]["volume"]/vol_scale_b)*100, 'r')
     p3.set(ylabel="Volume")
-    
-    
     fig.suptitle("Returns, price and volume of {0} (blue) vs {1} (red)".format(ticker,
                 comp))
     fig.savefig(loc, dpi='figure')
@@ -139,6 +145,7 @@ def create_plot(data, ticker, loc):
     
 def find_max(data):
     '''Returns date of the lowest and highest value of a list'''
+    
     data = data.sort_values()
     index = {}
     index["Lowest"] = data.iloc[0]
