@@ -27,7 +27,7 @@ def import_data(stock, start, end):
     for i in range(len(df_close)):
         if i < len(df_close)-1:
             dret.append(math.log((df_close[i+1]/df_close[i])))
-    dret.append(1)
+    dret.append(0)
     df["Returns"] = dret
     return df
 
@@ -113,10 +113,24 @@ def get_price(stock_data, names):
     return price
 
 def create_plot(data, ticker, loc):
-    plt.plot(data[1][ticker]["volume"], 'b--', data[1]["GSK"]["volume"], 'r--')
-    plt.title("Trading volume of {0} (blue) vs GSK (red)".format(ticker))
-    plt.xlabel("Date")
-    plt.ylabel("% Daily Volume")
+    comp = "MRK"
+    plt.figure(1)#, figsize=(9,3))
+    plt.subplot(311)
+    plt.plot(data[1][ticker]["Returns"], 'b', data[1][comp]["Returns"], 'r')
+    plt.subplot(312)
+    scaling_a = data[1][ticker]["close"][-1]
+    scaling_b = data[1][comp]["close"][-1]
+    plt.plot((data[1][ticker]["close"]/scaling_a)*100, 
+             'b', (data[1][comp]["close"]/scaling_b)*100, 'r')
+    plt.subplot(313)
+    vol_scale_a = data[1][ticker]["volume"][-1]
+    vol_scale_b = data[1][comp]["volume"][-1]
+    plt.plot((data[1][ticker]["volume"]/vol_scale_a)*100,'b',
+             (data[1][comp]["volume"]/vol_scale_b)*100, 'r')
+    plt.suptitle("Price over Trading Volume of {0} (blue) vs {1} (red)".format(ticker,
+                 comp))
+    #plt.xlabel("Date")
+    #plt.ylabel("Daily Trading Volume")
     plt.savefig(loc, dpi='figure')
     #https://matplotlib.org/tutorials/introductory/pyplot.html
     
@@ -141,11 +155,11 @@ def main():
     print("\nCorrelation\n")
     print(stocks_corr)
     print(stock_returns)
-    #create_plot(stocks, "JNJ", "Figure.png")
-    #print(stocks[1]["JNJ"])
+    create_plot(stocks, "JNJ", "Figure.pdf")
+    
     ##https://iexcloud.io/pricing/
     
-    
+    #https://dash.plot.ly/getting-started
     
     #stocks = pd.DataFrame({"TSLA":df_two["Returns"], "AAPL":df["Returns"]})
     #stocks["SPY"] = SPY["Returns"]
