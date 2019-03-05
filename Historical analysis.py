@@ -13,6 +13,7 @@ import math
 import quandl
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 
 def import_data(stock, start, end):
     '''Imports daily stock data using iexfinance.stocks API, 
@@ -113,27 +114,38 @@ def get_price(stock_data, names):
     return price
 
 def create_plot(data, ticker, loc):
-    comp = "MRK"
-    plt.figure(1)#, figsize=(9,3))
-    plt.subplot(311)
-    plt.plot(data[1][ticker]["Returns"], 'b', data[1][comp]["Returns"], 'r')
-    plt.subplot(312)
+    comp = "SPY"
+    fig, (p1, p2, p3) = plt.subplots(3, sharex = True)
+    p1.plot(data[1][ticker]["Returns"], 'b', data[1][comp]["Returns"], 'r')
+    p1.set(ylabel = "Returns")
     scaling_a = data[1][ticker]["close"][-1]
     scaling_b = data[1][comp]["close"][-1]
-    plt.plot((data[1][ticker]["close"]/scaling_a)*100, 
+    p2.plot((data[1][ticker]["close"]/scaling_a)*100, 
              'b', (data[1][comp]["close"]/scaling_b)*100, 'r')
-    plt.subplot(313)
+    p2.set(ylabel="Prices")
+    p2.legend((ticker, comp))
+    p2.grid(True)
     vol_scale_a = data[1][ticker]["volume"][-1]
     vol_scale_b = data[1][comp]["volume"][-1]
-    plt.plot((data[1][ticker]["volume"]/vol_scale_a)*100,'b',
+    p3.plot((data[1][ticker]["volume"]/vol_scale_a)*100,'b',
              (data[1][comp]["volume"]/vol_scale_b)*100, 'r')
-    plt.suptitle("Price over Trading Volume of {0} (blue) vs {1} (red)".format(ticker,
-                 comp))
-    #plt.xlabel("Date")
-    #plt.ylabel("Daily Trading Volume")
-    plt.savefig(loc, dpi='figure')
+    p3.set(ylabel="Volume")
+    
+    
+    fig.suptitle("Returns, price and volume of {0} (blue) vs {1} (red)".format(ticker,
+                comp))
+    fig.savefig(loc, dpi='figure')
     #https://matplotlib.org/tutorials/introductory/pyplot.html
     
+def find_max(data):
+    '''Returns date of the lowest and highest value of a list'''
+    data = data.sort_values()
+    index = {}
+    index["Lowest"] = data.iloc[0]
+    index["Highest"] = data.iloc[-1]
+    index["LowestD"] = np.argmin(data)
+    index["HighestD"] = np.argmax(data)
+    return index
     
 def main():
     end = datetime.today()
@@ -155,7 +167,13 @@ def main():
     print("\nCorrelation\n")
     print(stocks_corr)
     print(stock_returns)
-    create_plot(stocks, "JNJ", "Figure.pdf")
+    tick = "MRK"
+    plot = True
+    if plot == True:
+        create_plot(stocks, tick, "Figure.pdf")
+        lows = find_max(stocks[1][tick]["Returns"])
+        print('''{0} achieved its highest daily return on {1} at a return of {2}, its lowest on {3} at a return of {4}'''.format(tick, 
+          lows["HighestD"], lows["Highest"], lows["LowestD"], lows["Lowest"]))
     
     ##https://iexcloud.io/pricing/
     
