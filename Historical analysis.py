@@ -155,14 +155,12 @@ def find_max(data):
     return index
     
 def data_of_top(collection, start, end):
+    '''Returns return data and correlation for a collection of names'''
+    
     top_healthcare = import_collections(collection)
     names = list(top_healthcare["Ticker"])
     names.append("SPY")
-    #names = ["AAPL", "TSLA", "SPY", "PM", "AMZN"]
-    #SPY_trailing = SPY["close"].rolling(window=20).mean()
-    #SPY_trailing.plot()
     stocks = import_multiple("Returns", names, start, end) #Returns a dataframe with daily returns
-    #stock_rolling = stocks.rolling(window=20).mean()
     stocks_corr = stocks[0].corr()
     stock_returns = ReturnData(stocks[0], start, end)
     price = get_price(stocks, names)
@@ -171,36 +169,25 @@ def data_of_top(collection, start, end):
     print("\nCorrelation\n")
     print(stocks_corr)
     print(stock_returns)
+    return stocks
 
-def main(plot = False):
+def main(plot = True):
     end = datetime.today()
     start = end.replace(year=end.year-5) #Takes data from 5 years ago
     collections = ["Real Estate", "Energy", "Utilities", "Communication Services", 
                 "Technology", "Industrials", "Healthcare"]
     #Industrials, Healthcare, Technology,  works, 
+    data = {}
     
     for i in range(len(collections)):
-        data_of_top(collections[i], start, end)
-    '''top_healthcare = import_collections("Healthcare")
-    names = list(top_healthcare["Ticker"])
-    names.append("SPY")
+        data [collections[i]] = data_of_top(collections[i], start, end)
     #names = ["AAPL", "TSLA", "SPY", "PM", "AMZN"]
-    #SPY_trailing = SPY["close"].rolling(window=20).mean()
-    #SPY_trailing.plot()
-    stocks = import_multiple("Returns", names, start, end) #Returns a dataframe with daily returns
-    #stock_rolling = stocks.rolling(window=20).mean()
-    stocks_corr = stocks[0].corr()
-    stock_returns = ReturnData(stocks[0], start, end)
-    price = get_price(stocks, names)
-    stock_returns["Price"] = price
-    print("The correlation, yearly mean return and plot of {0} is given below:".format(names))
-    print("\nCorrelation\n")
-    print(stocks_corr)
-    print(stock_returns)'''
+    #SPY_trailing = SPY["close"].rolling(window=20).mean()   
+    
     tick = "MRK"
     if plot == True:
-        create_plot(stocks, tick, "Figure.pdf")
-        lows = find_max(stocks[1][tick]["Returns"])
+        create_plot(data["Healthcare"], tick, "Figure.pdf")
+        lows = find_max(data["Healthcare"][1][tick]["Returns"])
         print('''{0} achieved its highest daily return on {1} at a return of {2}, its lowest on {3} at a return of {4}'''.format(tick, 
           lows["HighestD"].strftime("%m/%d/%Y"), lows["Highest"], lows["LowestD"].strftime("%m/%d/%Y"),
           lows["Lowest"]))
