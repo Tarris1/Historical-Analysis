@@ -66,7 +66,7 @@ def import_collections(sector):
     top_ten = []
     indexing = len(markCap)-1
     top_notNA = 0
-    while top_notNA < 15:
+    while top_notNA < 10:
         test = math.isnan(markCap[indexing]) #Makes sure the data is a number
         if test == False:
             market_cap = markCap.iloc[indexing] ##Market Cap
@@ -154,14 +154,11 @@ def find_max(data):
     index["HighestD"] = np.argmax(data)
     return index
     
-def main():
-    end = datetime.today()
-    start = end.replace(year=end.year-5) #Takes data from 5 years ago
-    top_healthcare = import_collections("Healthcare")
+def data_of_top(collection, start, end):
+    top_healthcare = import_collections(collection)
     names = list(top_healthcare["Ticker"])
     names.append("SPY")
     #names = ["AAPL", "TSLA", "SPY", "PM", "AMZN"]
-    #SPY = import_data("SPY", start, end)
     #SPY_trailing = SPY["close"].rolling(window=20).mean()
     #SPY_trailing.plot()
     stocks = import_multiple("Returns", names, start, end) #Returns a dataframe with daily returns
@@ -174,13 +171,39 @@ def main():
     print("\nCorrelation\n")
     print(stocks_corr)
     print(stock_returns)
+
+def main(plot = False):
+    end = datetime.today()
+    start = end.replace(year=end.year-5) #Takes data from 5 years ago
+    collections = ["Real Estate", "Energy", "Utilities", "Communication Services", 
+                "Technology", "Industrials", "Healthcare"]
+    #Industrials, Healthcare, Technology,  works, 
+    
+    for i in range(len(collections)):
+        data_of_top(collections[i], start, end)
+    '''top_healthcare = import_collections("Healthcare")
+    names = list(top_healthcare["Ticker"])
+    names.append("SPY")
+    #names = ["AAPL", "TSLA", "SPY", "PM", "AMZN"]
+    #SPY_trailing = SPY["close"].rolling(window=20).mean()
+    #SPY_trailing.plot()
+    stocks = import_multiple("Returns", names, start, end) #Returns a dataframe with daily returns
+    #stock_rolling = stocks.rolling(window=20).mean()
+    stocks_corr = stocks[0].corr()
+    stock_returns = ReturnData(stocks[0], start, end)
+    price = get_price(stocks, names)
+    stock_returns["Price"] = price
+    print("The correlation, yearly mean return and plot of {0} is given below:".format(names))
+    print("\nCorrelation\n")
+    print(stocks_corr)
+    print(stock_returns)'''
     tick = "MRK"
-    plot = True
     if plot == True:
         create_plot(stocks, tick, "Figure.pdf")
         lows = find_max(stocks[1][tick]["Returns"])
         print('''{0} achieved its highest daily return on {1} at a return of {2}, its lowest on {3} at a return of {4}'''.format(tick, 
-          lows["HighestD"], lows["Highest"], lows["LowestD"], lows["Lowest"]))
+          lows["HighestD"].strftime("%m/%d/%Y"), lows["Highest"], lows["LowestD"].strftime("%m/%d/%Y"),
+          lows["Lowest"]))
     
     ##https://iexcloud.io/pricing/
     
