@@ -133,8 +133,8 @@ def create_plot(data, ticker, loc):
     p2.set(ylabel="Prices")
     p2.legend((ticker, comp))
     p2.grid(True)
-    vol_scale_a = data[1][ticker]["volume"][0]
-    vol_scale_b = data[1][comp]["volume"][0]
+    vol_scale_a = data[1][ticker]["volume"].max() #[0]
+    vol_scale_b = data[1][comp]["volume"].max() #[0]
     p3.plot((data[1][ticker]["volume"]/vol_scale_a)*100,'b',
              (data[1][comp]["volume"]/vol_scale_b)*100, 'r')
     p3.set(ylabel="Volume")
@@ -169,21 +169,20 @@ def data_of_top(collection, start, end):
     print("\nCorrelation\n")
     print(stocks_corr)
     print(stock_returns)
+    stocks.append(stock_returns)
     return stocks
 
-def main(plot = True):
+def main(plot = False, printit = False):
     end = datetime.today()
     start = end.replace(year=end.year-5) #Takes data from 5 years ago
     collections = ["Real Estate", "Energy", "Utilities", "Communication Services", 
                 "Technology", "Industrials", "Healthcare"]
-    #Industrials, Healthcare, Technology,  works, 
+    #^the above works
     data = {}
-    
     for i in range(len(collections)):
         data [collections[i]] = data_of_top(collections[i], start, end)
-    #names = ["AAPL", "TSLA", "SPY", "PM", "AMZN"]
     #SPY_trailing = SPY["close"].rolling(window=20).mean()   
-    
+
     tick = "MRK"
     if plot == True:
         create_plot(data["Healthcare"], tick, "Figure.pdf")
@@ -191,17 +190,21 @@ def main(plot = True):
         print('''{0} achieved its highest daily return on {1} at a return of {2}, its lowest on {3} at a return of {4}'''.format(tick, 
           lows["HighestD"].strftime("%m/%d/%Y"), lows["Highest"], lows["LowestD"].strftime("%m/%d/%Y"),
           lows["Lowest"]))
-    
-    ##https://iexcloud.io/pricing/
-    
+    if printit == True:
+        for i in range(len(data)):
+            path = "C:/Users/Sandsnes/Desktop/Stock project/"
+            files = data[collections[i]][2]
+            files.to_csv(path+collections[i]+".csv")
     #https://dash.plot.ly/getting-started
     
-    #stocks = pd.DataFrame({"TSLA":df_two["Returns"], "AAPL":df["Returns"]})
-    #stocks["SPY"] = SPY["Returns"]
     #stock_return = df.apply(lambda x:x/x[0])
     #stocks.plot(grid = True) ###Plots the three datapoints
     #https://medium.com/python-data/capm-analysis-calculating-stock-beta-as-a-regression-in-python-c82d189db536
     #https://ntguardian.wordpress.com/2018/07/17/stock-data-analysis-python-v2/
+    
+    #Seaborn
+    #scikit-learn, StatsModels
+    
     
 if __name__ == "__main__":
     main()
