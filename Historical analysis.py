@@ -66,7 +66,7 @@ def import_collections(sector):
     top_ten = []
     indexing = len(markCap)-1
     top_notNA = 0
-    while top_notNA < 10:
+    while top_notNA < 20:
         test = math.isnan(markCap[indexing]) #Makes sure the data is a number
         if test == False:
             market_cap = markCap.iloc[indexing] ##Market Cap
@@ -172,18 +172,18 @@ def data_of_top(collection, start, end):
     stocks.append(stock_returns)
     return stocks
 
-def main(plot = False, printit = False):
+def main(plot = False, printit = True):
     end = datetime.today()
     start = end.replace(year=end.year-5) #Takes data from 5 years ago
     collections = ["Real Estate", "Energy", "Utilities", "Communication Services", 
                 "Technology", "Industrials", "Healthcare"]
     #^the above works
     data = {}
-    for i in range(len(collections)):
-        data [collections[i]] = data_of_top(collections[i], start, end)
+    '''for i in range(len(collections)):
+        data [collections[i]] = data_of_top(collections[i], start, end)'''
     #SPY_trailing = SPY["close"].rolling(window=20).mean()   
-
-    tick = "MRK"
+    data["Healthcare"] = data_of_top("Healthcare", start, end)
+    tick = "UNH"
     if plot == True:
         create_plot(data["Healthcare"], tick, "Figure.pdf")
         lows = find_max(data["Healthcare"][1][tick]["Returns"])
@@ -191,10 +191,12 @@ def main(plot = False, printit = False):
           lows["HighestD"].strftime("%m/%d/%Y"), lows["Highest"], lows["LowestD"].strftime("%m/%d/%Y"),
           lows["Lowest"]))
     if printit == True:
-        for i in range(len(data)):
+        sector = "Healthcare" 
+        firms = data[sector][0].columns
+        for i in range(len(firms)):
             path = "C:/Users/Sandsnes/Desktop/Stock project/"
-            files = data[collections[i]][2]
-            files.to_csv(path+collections[i]+".csv")
+            files = data[sector][1][firms[i]]
+            files.to_csv(path+sector+" "+firms[i]+".csv")
     #https://dash.plot.ly/getting-started
     
     #stock_return = df.apply(lambda x:x/x[0])
